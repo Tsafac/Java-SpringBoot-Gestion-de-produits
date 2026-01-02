@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image "${harbor_registry}/agent/maven-jenkins-agent:v2"
+            image "${HARBOR_REGISTRY}/agent/maven-jenkins-agent:v2"
             args "-v /var/run/docker.sock:/var/run/docker.sock"
             reuseNode true
         }    
@@ -19,7 +19,7 @@ pipeline {
                 docker info | head -20
 
                 echo "Try pull"
-                docker pull ${arbor_registry}/agent/maven-jenkins-agent:v2
+                docker pull ${HARBOR_REGISTRY}/agent/maven-jenkins-agent:v2
 
                 '''
             }
