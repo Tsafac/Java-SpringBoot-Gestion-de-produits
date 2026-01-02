@@ -11,10 +11,6 @@ pipeline {
         stage('Test agent') {
             steps {
                 sh '''
-
-                echo "User:"
-                whoami
-
                 echo "Docker Info"
                 docker info | head -20
 
