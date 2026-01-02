@@ -2,29 +2,32 @@ pipeline {
     agent {
         docker {
             image "harbor.local:8081/agent/maven-jenkins-agent:v2"
+            // Ajout des identifiants ici pour autoriser le pull de l'agent
+            registryCredentialsId 'harbor-creds'
+            registryUrl 'http://harbor.local:8081'
             args "--entrypoint='' -u root -v /var/run/docker.sock:/var/run/docker.sock"
-
             reuseNode true
         }    
     }
 
-    stages{
+    stages {
         stage('Test agent') {
             steps {
                 sh '''
                 echo "Docker Info"
                 docker info | head -20
-
                 '''
-
-        stage ('Pull image') {
-            steps{
-                docker.withRegistry('http://harbor.local:8081', 'harbor-creds')
-                    docker.image('harbor.local:8081/agent/maven-jenkins-agent:v2').pull()
-
             }
         }
-         
+        
+        // Ce stage devient optionnel car l'image est déjà récupérée par l'agent
+        stage('Verify Pull') {
+            steps {
+                script {
+                    docker.withRegistry('http://harbor.local:8081', 'harbor-creds') {
+                        sh "docker pull harbor.local:8081/agent/maven-jenkins-agent:v2"
+                    }
+                }
             }
         }
     }
