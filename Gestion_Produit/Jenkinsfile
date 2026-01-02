@@ -1,6 +1,6 @@
 pipeline {
     environment {
-        HARBOR_REGISTRY = credentials('HARBOR_REGISTRY')
+        HARBOR_REGISTRY = credentials('harbor.local:8081')
     }
     agent {
         docker {
@@ -14,7 +14,7 @@ pipeline {
         stage('Test agent') {
             steps {
                 sh '''
-                
+
                 echo "User:"
                 whoami
 
