@@ -2,7 +2,8 @@ pipeline {
     agent {
         docker {
             image "harbor.local:8081/agent/maven-jenkins-agent:v2"
-            args "--entrypoint='' -v /var/run/docker.sock:/var/run/docker.sock"
+            args "--entrypoint='' -u root -v /var/run/docker.sock:/var/run/docker.sock"
+
             reuseNode true
         }    
     }
