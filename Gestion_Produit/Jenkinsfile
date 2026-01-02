@@ -16,7 +16,8 @@ pipeline {
                 docker info | head -20
 
                 echo "Try pull"
-                docker pull harbor.local:8081/agent/maven-jenkins-agent:v2
+                docker.withRegistry('http://harbor.local:8081', 'harbor-creds')
+                    docker.image('harbor.local:8081/agent/maven-jenkins-agent:v2').pull()
 
                 '''
             }
