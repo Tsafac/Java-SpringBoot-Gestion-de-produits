@@ -1,6 +1,6 @@
 pipeline {
     environment {
-        HARBOR_REGISTRY = credentials('harbor.local:8081')
+        HARBOR_REGISTRY = credentials('harbor_registry')
     }
     agent {
         docker {
