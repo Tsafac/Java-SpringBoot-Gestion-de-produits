@@ -1,0 +1,31 @@
+pipeline {
+    environment {
+        HARBOR_REGISTRY = credentials('HARBOR_REGISTRY')
+    }
+    agent {
+        docker {
+            image "${HARBOR_REGISTRY}/agent/maven-jenkins-agent:v2"
+            args "-v /var/run/docker.sock:/var/run/docker.sock"
+            reuseNode true
+        }    
+    }
+
+    stages{
+        stage('Test agent') {
+            steps {
+                sh '''
+                
+                echo "User:"
+                whoami
+
+                echo "Docker Info"
+                docker info
+
+                echo "Try pull"
+                docker pull ${HARBOR_REGISTRY}/agent/maven-jenkins-agent:v2
+
+                '''
+            }
+        }
+    }
+}
