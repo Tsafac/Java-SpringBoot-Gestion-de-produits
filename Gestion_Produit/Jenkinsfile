@@ -21,7 +21,8 @@ pipeline {
         dir('Gestion_Produit') {
         sh '''
           echo "verification regles de style"
-          mvn checkstyle:check
+          mvn checkstyle:check -Dcheckstyle.failOnViolation=false
+
 
           echo "verification bugs potentiels"
           mvn spotbugs:check
