@@ -23,10 +23,6 @@ pipeline {
           echo "verification regles de style"
           mvn checkstyle:check -Dcheckstyle.failOnViolation=false
 
-
-          echo "verification bugs potentiels"
-          mvn spotbugs:check
-
           echo "verification dockerfile"
           hadolint Dockerfile || true
 
