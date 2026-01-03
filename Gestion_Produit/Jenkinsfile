@@ -77,7 +77,8 @@ pipeline {
 
         stage('Scan Image (Trivy)'){
             steps(
-                sh 'trivy image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 $IMAGE'
+                sh "trivy image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 ${IMAGE}"
+
             )
 
         stage('Generate SBOM (Syft)') {
