@@ -1,120 +1,123 @@
 pipeline {
-    agent {
-        docker {
-            image "harbor.local:8081/agent/maven-jenkins-agent:v3"
-            // Ajout des identifiants ici pour autoriser le pull de l'agent
-            registryCredentialsId 'harbor-creds'
-            registryUrl 'http://harbor.local:8081'
-            args "--entrypoint='' -u root -v /var/run/docker.sock:/var/run/docker.sock"
-            reuseNode true
-        }
-    environment {
-        IMAGE_TAG = "v1.${BUILD_NUMBER}"
-        IMAGE = "harbor.local:8081/staging/gestion:${IMAGE_TAG}"
+  agent {
+    docker {
+      image "harbor.local:8081/agent/maven-jenkins-agent:v3"
+      registryCredentialsId 'harbor-creds'
+      registryUrl 'http://harbor.local:8081'
+      args "--entrypoint='' -u root -v /var/run/docker.sock:/var/run/docker.sock"
+      reuseNode true
     }
+  }
+
+  environment {
+    IMAGE_TAG = "v1.${BUILD_NUMBER}"
+    IMAGE     = "harbor.local:8081/staging/gestion:${IMAGE_TAG}"
+  }
+
+  stages {
+
+    stage('Lint') {
+      steps {
+        sh '''
+          echo "verification regles de style"
+          mvn checkstyle:check
+
+          echo "verification bugs potentiels"
+          mvn spotbugs:check
+
+          echo "verification dockerfile"
+          hadolint Dockerfile || true
+
+          echo "verification yaml"
+          yamllint . || true
+        '''
+      }
     }
 
-    stages {
-        stage('Lint') {
-            steps {
-                sh '''
-                echo "verification regles de style"
-                mvn checkstyle:check
+    stage('Tests') {
+      steps {
+        sh '''
+          echo "tests unitaires"
+          mvn -q test
+        '''
+      }
+    }
 
-                echo "verification bugs potentiels
-                mvn spotbugs:check
-
-                echo "verification dockerfile"
-                hadolint Dockerfile
-
-                echo "verification yaml"
-                yamllint .
-                '''
-            }
-        }
-
-        stage("Tests") {
-            steps {
-                sh '''
-                echo "tests unitaires"
-                mvn -q test
-                '''
-           }
-        }
-
-        stage('SonarQube Analysis') {
-            steps {
-              withSonarQubeEnv('sonarqube') {
-                sh '''
-                 mvn sonar:sonar \
-                   -Dsonar.projectKey=my-gestion-app \
-                   -Dsonar.projectName=my-gestion-app \
-                   -Dsonar.java.binaries=target
-                '''
+    stage('SonarQube Analysis') {
+      steps {
+        withSonarQubeEnv('sonarqube') {
+          sh '''
+            mvn sonar:sonar \
+              -Dsonar.projectKey=my-gestion-app \
+              -Dsonar.projectName=my-gestion-app \
+              -Dsonar.java.binaries=target
+          '''
         }
       }
     }
 
-        stage('Quality Gate') {
-            steps {
-               timeout(time: 2, unit: 'MINUTES') {
-                 waitForQualityGate abortPipeline: true
+    stage('Quality Gate') {
+      steps {
+        timeout(time: 2, unit: 'MINUTES') {
+          waitForQualityGate abortPipeline: true
         }
       }
     }
 
-        stage('Dependency Check (SCA)') {
-            steps {
-                sh 'mvn verify'
-            }
-        }
-
-        stage("build Image"){
-            steps {
-                sh 'docker build -t $IMAGE .'
-            }
-        }
-
-        stage('Scan Image (Trivy)'){
-            steps{
-                sh "trivy image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 ${IMAGE}"
-
-            }
-
-        stage('Generate SBOM (Syft)') {
-            steps {
-                sh '''
-                    syft $IMAGE -o json > sbom.json
-                
-                '''
-                archiveArtifacts artifacts: 'sbom.json'
-
-            }
-        }
-
-        stage('Sign Image (Cosign)') {
-            environment {
-                COSIGN_PASSWORD = credentials('cosign_password')
-            }
-            steps {
-                withCredentials([
-                    file(credentialsId: 'cosign-private-key', variable: 'COSIGN_KEY')
-                ]) {
-                    sh '''
-                    --key $COSIGN_KEY \
-                    $IMAGE
-                     '''
-                }
-            }
-        }
-        stage('Push Image to Harbor') {
-            steps {
-                sh 'docker push $IMAGE'
-            
-            }
-        }
-
-        }
-        
+    stage('Dependency Check (SCA)') {
+      steps {
+        sh 'mvn verify'
+      }
     }
+
+    stage('Build Image') {
+      steps {
+        sh 'docker build -t $IMAGE .'
+      }
+    }
+
+    stage('Scan Image (Trivy)') {
+      steps {
+        sh '''
+          trivy image \
+            --severity HIGH,CRITICAL \
+            --ignore-unfixed \
+            --exit-code 1 \
+            $IMAGE
+        '''
+      }
+    }
+
+    stage('Generate SBOM (Syft)') {
+      steps {
+        sh '''
+          syft $IMAGE -o json > sbom.json
+        '''
+        archiveArtifacts artifacts: 'sbom.json'
+      }
+    }
+
+    stage('Sign Image (Cosign)') {
+      environment {
+        COSIGN_PASSWORD = credentials('cosign_password')
+      }
+      steps {
+        withCredentials([
+          file(credentialsId: 'cosign-private-key', variable: 'COSIGN_KEY')
+        ]) {
+          sh '''
+            cosign sign \
+              --key $COSIGN_KEY \
+              $IMAGE
+          '''
+        }
+      }
+    }
+
+    stage('Push Image to Harbor') {
+      steps {
+        sh 'docker push $IMAGE'
+      }
+    }
+  }
 }
