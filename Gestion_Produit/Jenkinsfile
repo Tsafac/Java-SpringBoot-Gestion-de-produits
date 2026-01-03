@@ -18,6 +18,7 @@ pipeline {
 
     stage('Lint') {
       steps {
+        dir('Gestion_Produit') {
         sh '''
           echo "verification regles de style"
           mvn checkstyle:check
@@ -33,6 +34,7 @@ pipeline {
         '''
       }
     }
+   }
 
     stage('Tests') {
       steps {
