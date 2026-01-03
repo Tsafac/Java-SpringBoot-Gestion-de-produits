@@ -102,6 +102,24 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
+			<plugin>
+      			<groupId>org.owasp</groupId>
+      				<artifactId>dependency-check-maven</artifactId>
+      					<version>9.0.7</version>
+      						<executions>
+        						<execution>
+          							<phase>verify</phase>
+          								<goals>
+            								<goal>check</goal>
+          								</goals>
+        						</execution>
+      						</executions>
+      						<configuration>
+        						<failBuildOnCVSS>7</failBuildOnCVSS>
+        						<format>HTML</format>
+      						</configuration>
+    		</plugin>
 		</plugins>
 	</build>
  </project>

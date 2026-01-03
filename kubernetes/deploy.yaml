@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestion-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: gestion
+  template:
+    metadata:
+      labels:
+        app: gestion
+    spec:
+      containers:
+        - name: gestion
+          image: gestion:latest
+          ports:
+            - containerPort: 80

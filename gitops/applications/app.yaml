@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gestion
+  namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: gestion=harbor.local:8081/staging/gestion
+    argocd-image-updater.argoproj.io/my-app.update-strategy: semver
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Tsafac/Java-SpringBoot-Gestion-de-produits.git
+    targetRevision: main
+    path: Java-SpringBoot-Gestion-de-produits/kubernetes
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
