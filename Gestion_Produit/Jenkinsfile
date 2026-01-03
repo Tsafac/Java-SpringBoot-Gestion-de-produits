@@ -35,10 +35,14 @@ pipeline {
 
     stage('Tests') {
       steps {
-        sh '''
-          echo "tests unitaires"
-          mvn -q test
-        '''
+        dir('Gestion_Produit') {
+            sh '''
+              echo "tests unitaires"
+              mvn -q test
+            '''
+
+        }
+        
       }
     }
 
