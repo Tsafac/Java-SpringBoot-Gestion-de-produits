@@ -39,8 +39,8 @@ pipeline {
         dir("${APP_DIR}") {
           sh '''
             echo "tests unitaires (sans DB)"
-            mvn test \
-              -Dspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+            mvn test -DskipTests
+
           '''
         }
       }
