@@ -67,6 +67,11 @@ pipeline {
           sh 'mvn verify'
         }
       }
+      post {
+        always {
+            archiveArtifacts artifacts: 'Gestion_Produit/target/dependency-check-report.html'
+        }
+      }
     }
 
     stage('Build Image') {
