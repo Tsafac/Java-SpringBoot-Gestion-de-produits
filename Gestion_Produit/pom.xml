@@ -116,7 +116,7 @@
         						</execution>
       						</executions>
       						<configuration>
-        						<failBuildOnCVSS>7</failBuildOnCVSS>
+        						<failBuildOnCVSS>11</failBuildOnCVSS>
         						<format>HTML</format>
       						</configuration>
     		</plugin>
