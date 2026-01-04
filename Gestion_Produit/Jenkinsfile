@@ -24,10 +24,9 @@ pipeline {
           mvn checkstyle:check -Dcheckstyle.failOnViolation=false
 
           echo "verification dockerfile"
-          hadolint Dockerfile || true
-
+          hadolint Dockerfile 
           echo "verification yaml"
-          yamllint . || true
+          yamllint . 
         '''
       }
     }
@@ -38,7 +37,9 @@ pipeline {
         dir('Gestion_Produit') {
             sh '''
               echo "tests unitaires"
-              mvn -q test
+              mvn test \
+                 -Dspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
             '''
 
         }
