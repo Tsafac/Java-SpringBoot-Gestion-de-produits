@@ -4,12 +4,10 @@ pipeline {
   tools {
     maven 'maven-3'
   }
-  
 
   environment {
     IMAGE_TAG = "v1.${BUILD_NUMBER}"
     IMAGE     = "harbor.local:8081/staging/gestion:${IMAGE_TAG}"
-    APP_DIR   = "Gestion_Produit"
   }
 
   stages {
@@ -31,48 +29,40 @@ pipeline {
 
     stage('Tests') {
       steps {
-        dir("${APP_DIR}") {
-          sh '''
-            echo "tests unitaires (sans DB)"
-            mvn test
-          '''
-        }
+        sh '''
+          echo "tests unitaires"
+          mvn test
+        '''
       }
     }
 
     stage('SonarQube Analysis') {
       steps {
-        dir("${APP_DIR}") {
-          withSonarQubeEnv('sonarqube') {
-            sh '''
-              mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.10.0.2594:sonar \
-                -Dsonar.projectKey=my-gestion-app \
-                -Dsonar.projectName=my-gestion-app \
-                -Dsonar.java.binaries=target
-            '''
-          }
+        withSonarQubeEnv('sonarqube') {
+          sh '''
+            mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.10.0.2594:sonar \
+              -Dsonar.projectKey=my-gestion-app \
+              -Dsonar.projectName=my-gestion-app \
+              -Dsonar.java.binaries=target
+          '''
         }
       }
     }
 
     stage('Dependency Check (SCA)') {
       steps {
-        dir("${APP_DIR}") {
-          sh 'mvn verify'
-        }
+        sh 'mvn verify'
       }
       post {
         always {
-          archiveArtifacts artifacts: 'Gestion_Produit/target/dependency-check-report.html'
+          archiveArtifacts artifacts: 'target/dependency-check-report.html'
         }
       }
     }
 
     stage('Build Image') {
       steps {
-        dir("${APP_DIR}") {
-          sh 'docker build -t $IMAGE .'
-        }
+        sh 'docker build -t $IMAGE .'
       }
     }
 
@@ -117,8 +107,5 @@ pipeline {
         sh 'docker push $IMAGE'
       }
     }
-
   }
 }
-
-
