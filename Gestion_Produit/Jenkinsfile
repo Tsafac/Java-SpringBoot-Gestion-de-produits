@@ -1,11 +1,6 @@
 pipeline {
   agent {
-    docker {
-      image "harbor.local:8081/agent/maven-jenkins:v1"
-      registryCredentialsId 'harbor-creds'
-      registryUrl 'http://harbor.local:8081'
-      args "--entrypoint='' -u root -v /var/run/docker.sock:/var/run/docker.sock"
-      reuseNode true
+    label 'maven'
     }
   }
 
@@ -19,7 +14,7 @@ pipeline {
 
     stage('Lint') {
       steps {
-        dir("${APP_DIR}") {
+         
           sh '''
             echo "verification regles de style"
             mvn checkstyle:check -Dcheckstyle.failOnViolation=false
@@ -30,7 +25,7 @@ pipeline {
             echo "verification yaml"
             yamllint . || true
           '''
-        }
+        
       }
     }
 
