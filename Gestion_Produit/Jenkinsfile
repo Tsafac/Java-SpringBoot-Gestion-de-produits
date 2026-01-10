@@ -6,6 +6,7 @@ pipeline {
   }
 
   environment {
+    APP_DIR   = "Gestion_Produit"
     IMAGE_TAG = "v1.${BUILD_NUMBER}"
     IMAGE     = "harbor.local:8081/staging/gestion:${IMAGE_TAG}"
   }
@@ -14,12 +15,15 @@ pipeline {
 
     stage('Lint') {
       steps {
+        dir("${APP_DIR}") {
+          sh '''
+            echo "verification regles de style"
+            mvn checkstyle:check -Dcheckstyle.failOnViolation=false
+          '''
+        }
         sh '''
-          echo "verification regles de style"
-          mvn checkstyle:check -Dcheckstyle.failOnViolation=false
-
           echo "verification dockerfile"
-          hadolint Dockerfile || true
+          hadolint ${APP_DIR}/Dockerfile || true
 
           echo "verification yaml"
           yamllint . || true
@@ -29,40 +33,48 @@ pipeline {
 
     stage('Tests') {
       steps {
-        sh '''
-          echo "tests unitaires"
-          mvn test
-        '''
+        dir("${APP_DIR}") {
+          sh '''
+            echo "tests unitaires"
+            mvn test
+          '''
+        }
       }
     }
 
     stage('SonarQube Analysis') {
       steps {
-        withSonarQubeEnv('sonarqube') {
-          sh '''
-            mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.10.0.2594:sonar \
-              -Dsonar.projectKey=my-gestion-app \
-              -Dsonar.projectName=my-gestion-app \
-              -Dsonar.java.binaries=target
-          '''
+        dir("${APP_DIR}") {
+          withSonarQubeEnv('sonarqube') {
+            sh '''
+              mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.10.0.2594:sonar \
+                -Dsonar.projectKey=my-gestion-app \
+                -Dsonar.projectName=my-gestion-app \
+                -Dsonar.java.binaries=target
+            '''
+          }
         }
       }
     }
 
     stage('Dependency Check (SCA)') {
       steps {
-        sh 'mvn verify'
+        dir("${APP_DIR}") {
+          sh 'mvn verify'
+        }
       }
       post {
         always {
-          archiveArtifacts artifacts: 'target/dependency-check-report.html'
+          archiveArtifacts artifacts: 'Gestion_Produit/target/dependency-check-report.html'
         }
       }
     }
 
     stage('Build Image') {
       steps {
-        sh 'docker build -t $IMAGE .'
+        dir("${APP_DIR}") {
+          sh 'docker build -t $IMAGE .'
+        }
       }
     }
 
