@@ -31,6 +31,17 @@ pipeline {
       }
     }
 
+    stage("Build"){
+      steps{
+        dir("${APP_DIR}") {
+          sh '''
+            echo "production de l'artefact(.jar)"
+            mvn clean package 
+
+         '''
+       }
+      }
+    }
     stage('Tests') {
       steps {
         dir("${APP_DIR}") {
@@ -40,6 +51,11 @@ pipeline {
           '''
         }
       }
+      post {
+       always {
+        junit "${APP_DIR}/target/surefire-reports/*.xml"
+       }
+     }
     }
 
     stage('SonarQube Analysis') {
