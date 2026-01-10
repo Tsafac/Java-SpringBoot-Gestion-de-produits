@@ -1,7 +1,6 @@
 pipeline {
   agent {
     label 'maven'
-    }
   }
 
   environment {
@@ -14,18 +13,16 @@ pipeline {
 
     stage('Lint') {
       steps {
-         
-          sh '''
-            echo "verification regles de style"
-            mvn checkstyle:check -Dcheckstyle.failOnViolation=false
+        sh '''
+          echo "verification regles de style"
+          mvn checkstyle:check -Dcheckstyle.failOnViolation=false
 
-            echo "verification dockerfile"
-            hadolint Dockerfile || true
+          echo "verification dockerfile"
+          hadolint Dockerfile || true
 
-            echo "verification yaml"
-            yamllint . || true
-          '''
-        
+          echo "verification yaml"
+          yamllint . || true
+        '''
       }
     }
 
@@ -34,8 +31,7 @@ pipeline {
         dir("${APP_DIR}") {
           sh '''
             echo "tests unitaires (sans DB)"
-            mvn test -DskipTests
-
+            mvn test
           '''
         }
       }
@@ -64,7 +60,7 @@ pipeline {
       }
       post {
         always {
-            archiveArtifacts artifacts: 'Gestion_Produit/target/dependency-check-report.html'
+          archiveArtifacts artifacts: 'Gestion_Produit/target/dependency-check-report.html'
         }
       }
     }
@@ -91,9 +87,7 @@ pipeline {
 
     stage('Generate SBOM (Syft)') {
       steps {
-        sh '''
-          syft $IMAGE -o json > sbom.json
-        '''
+        sh 'syft $IMAGE -o json > sbom.json'
         archiveArtifacts artifacts: 'sbom.json'
       }
     }
@@ -120,5 +114,8 @@ pipeline {
         sh 'docker push $IMAGE'
       }
     }
+
   }
+}
+
 
