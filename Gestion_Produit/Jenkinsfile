@@ -60,6 +60,19 @@ pipeline {
       }
     }
 
+    stage('Dependency Check (SCA)') {
+      steps {
+        dir("${APP_DIR}") {
+          sh 'mvn verify'
+        }
+      }
+      post {
+        always {
+          archiveArtifacts artifacts: 'Gestion_Produit/target/dependency-check-report.html'
+        }
+      }
+    }
+
     stage('SonarQube Analysis') {
       steps {
         dir("${APP_DIR}") {
@@ -76,18 +89,7 @@ pipeline {
       }
     }
 
-    stage('Dependency Check (SCA)') {
-      steps {
-        dir("${APP_DIR}") {
-          sh 'mvn verify'
-        }
-      }
-      post {
-        always {
-          archiveArtifacts artifacts: 'Gestion_Produit/target/dependency-check-report.html'
-        }
-      }
-    }
+    
 
     stage('Build Image') {
       steps {
