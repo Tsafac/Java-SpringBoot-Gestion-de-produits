@@ -6,7 +6,6 @@ pipeline {
   }
 
   environment {
-    NVD_API_KEY = credentials('nvd-api-key')
     JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
     PATH = "${JAVA_HOME}/bin:${env.PATH}"
 
@@ -115,11 +114,15 @@ pipeline {
     stage('Scan Image (Trivy)') {
       steps {
         sh '''
-          trivy image \
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:latest \
+            image \
             --severity HIGH,CRITICAL \
             --ignore-unfixed \
             --exit-code 1 \
             $IMAGE
+
         '''
       }
     }
