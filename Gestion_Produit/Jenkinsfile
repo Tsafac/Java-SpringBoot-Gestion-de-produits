@@ -72,7 +72,7 @@ pipeline {
               fs /project \
               --scanners vuln \
               --severity CRITICAL \
-              --exit-code 0
+              --exit-code 0 \
               --ignorefile /project/.trivyignore
             echo "Trivy scan completed (exit code ignored)"
 
