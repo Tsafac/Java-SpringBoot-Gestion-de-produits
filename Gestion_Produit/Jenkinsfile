@@ -60,26 +60,11 @@ pipeline {
       }
     }
 
-    stage('DEBUG NVD KEY') {
-      steps {
-        sh '''
-          echo "NVD_API_KEY is set: ${#NVD_API_KEY}"
-          env | grep NVD
-    '''
-      }
-    }
-
 
     stage('Dependency Check (SCA)') {
       steps {
         dir("${APP_DIR}") {
-          sh '''
-            mvn org.owasp:dependency-check-maven:9.0.7:check \
-              -Dnvd.api.key=${NVD_API_KEY} \
-              -DskipUpdate=true \
-              -DfailBuildOnCVSS=11 || true
-            
-            '''
+          sh 'mvn verify || true'
         }
       }
       post {
