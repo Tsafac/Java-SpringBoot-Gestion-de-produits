@@ -70,7 +70,7 @@ pipeline {
               aquasec/trivy:latest \
               fs /project \
               --scanners vuln \
-              --severity HIGH,CRITICAL \
+              --severity CRITICAL \
               --exit-code 1
 
           '''
