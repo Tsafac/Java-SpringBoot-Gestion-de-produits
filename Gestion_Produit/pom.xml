@@ -38,7 +38,7 @@
     <!-- ===================== -->
     <dependencies>
 
-        <!-- Spring Boot Core -->
+        <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -122,7 +122,7 @@
                 </configuration>
             </plugin>
 
-            <!-- OWASP Dependency-Check -->
+            <!-- OWASP Dependency-Check (CI SAFE CONFIG) -->
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
@@ -137,14 +137,16 @@
                 </executions>
                 <configuration>
 
-                    <!--  NVD API KEY (obligatoire) -->
-                    <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
-                    <nvdApiDelay>6000</nvdApiDelay>
+                    <!-- NVD désactivé (403 en CI) -->
+                    <nvdEnabled>false</nvdEnabled>
 
-                    <!-- Ne bloque pas le build sur CVSS -->
+                    <!-- Source alternative fiable -->
+                    <ossIndexEnabled>true</ossIndexEnabled>
+
+                    <!-- Ne bloque pas le build -->
                     <failBuildOnCVSS>11</failBuildOnCVSS>
 
-                    <!-- Format du rapport -->
+                    <!-- Rapport -->
                     <format>HTML</format>
 
                 </configuration>
