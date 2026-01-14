@@ -124,7 +124,7 @@ pipeline {
             --exit-code 0 \
             --ignorefile /project/.trivyignore \
             $IMAGE
-             
+
           echo " Trivy image scan terminé" 
 
         '''
@@ -133,10 +133,18 @@ pipeline {
 
     stage('Generate SBOM (Syft)') {
       steps {
-        sh 'syft $IMAGE -o json > sbom.json'
-        archiveArtifacts artifacts: 'sbom.json'
-      }
-    }
+        sh '''
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v $PWD:/sbom \
+            anchore/syft:latest \
+            $IMAGE \
+            -o json > sbom.json
+    '''
+    archiveArtifacts artifacts: 'sbom.json'
+  }
+}
+
 
     stage('Sign Image (Cosign)') {
       environment {
