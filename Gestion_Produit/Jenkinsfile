@@ -123,8 +123,9 @@ pipeline {
             --ignore-unfixed \
             --exit-code 0 \
             --ignorefile /project/.trivyignore \
-            $IMAGE \
-           
+            $IMAGE
+             
+          echo " Trivy image scan terminé" 
 
         '''
       }
