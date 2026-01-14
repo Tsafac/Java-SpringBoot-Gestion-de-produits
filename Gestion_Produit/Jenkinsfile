@@ -121,7 +121,7 @@ pipeline {
             --severity CRITICAL \
             --ignore-unfixed \
             --exit-code 0 \
-            $IMAGE
+            $IMAGE \
             --ignorefile /project/.trivyignore
 
         '''
