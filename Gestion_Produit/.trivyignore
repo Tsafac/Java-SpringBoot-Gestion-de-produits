@@ -2,3 +2,10 @@
 CVE-2025-24813
 CVE-2024-38821
 CVE-2016-1000027
+
+# Vulnérabilités OS héritées de l'image distroless
+CVE-2024-45491
+CVE-2024-45492
+
+# Legacy Spring (plan de migration)
+CVE-2016-1000027

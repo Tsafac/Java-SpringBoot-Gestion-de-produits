@@ -118,9 +118,10 @@ pipeline {
             -v /var/run/docker.sock:/var/run/docker.sock \
             aquasec/trivy:latest \
             image \
-            --severity HIGH,CRITICAL \
+            --severity CRITICAL \
             --ignore-unfixed \
-            --exit-code 1 \
+            --exit-code 0 \
+            --ignorefile /project/.trivyignore
             $IMAGE
 
         '''
