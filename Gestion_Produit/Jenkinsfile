@@ -147,8 +147,22 @@ pipeline {
 
     stage('Push Image to Harbor') {
       steps {
-        sh 'docker push $IMAGE'
-      }
+        withCredentials([
+          usernamePassword(
+            credentialsId: 'harbor-creds',
+            usernameVariable: 'HARBOR_USER',
+            passwordVariable: 'HARBOR_PASS'
+      )
+    ]) {
+      sh '''
+        echo "$HARBOR_PASS" | docker login harbor.local:8081 \
+          -u "$HARBOR_USER" --password-stdin
+
+        docker push $IMAGE
+      '''
     }
+  }
+}
+
   }
 }
