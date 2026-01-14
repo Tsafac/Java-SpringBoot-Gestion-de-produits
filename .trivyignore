@@ -1,7 +1,0 @@
-# Legacy Spring Boot 2.7.x dependencies
-# Migration to Spring Boot 3.x planned
-# Risk accepted and documented
-
-CVE-2025-24813
-CVE-2024-38821
-CVE-2016-1000027

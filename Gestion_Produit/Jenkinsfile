@@ -81,7 +81,8 @@ pipeline {
       }
       post {
         always {
-          archiveArtifacts artifacts: 'Gestion_Produit/target/dependency-check-report.html'
+          archiveArtifacts artifacts: 'Gestion_Produit/target/dependency-check-report.html',
+                           allowEmptyArchive: true
         }
       }
     }
