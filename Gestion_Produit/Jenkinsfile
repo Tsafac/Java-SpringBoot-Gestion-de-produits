@@ -65,12 +65,13 @@ pipeline {
       steps {
         dir("${APP_DIR}") {
           sh '''
-            trivy fs \
+            docker run --rm \
+              -v $PWD:/project \
+              aquasec/trivy:latest \
+              fs /project \
               --scanners vuln \
               --severity HIGH,CRITICAL \
-              --exit-code 1 \
-              --format table\
-              .
+              --exit-code 1
 
           '''
         }
