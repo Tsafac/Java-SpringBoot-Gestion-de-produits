@@ -63,7 +63,13 @@ pipeline {
     stage('Dependency Check (SCA)') {
       steps {
         dir("${APP_DIR}") {
-          sh 'mvn verify'
+          sh '''
+            mvn verify
+              -Dnvd.api.key=$NVD_API_KEY \
+              -Dnvd.api.delay=6000 \
+              -Dnvd.api.maxRetryCount=5
+            
+            '''
         }
       }
       post {
