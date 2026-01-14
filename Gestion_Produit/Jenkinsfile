@@ -60,6 +60,16 @@ pipeline {
       }
     }
 
+    stage('DEBUG NVD KEY') {
+      steps {
+        sh '''
+          echo "NVD_API_KEY is set: ${#NVD_API_KEY}"
+          env | grep NVD
+    '''
+      }
+    }
+
+
     stage('Dependency Check (SCA)') {
       steps {
         dir("${APP_DIR}") {
