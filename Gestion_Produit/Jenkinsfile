@@ -64,7 +64,8 @@ pipeline {
         dir("${APP_DIR}") {
           withSonarQubeEnv('sonarqube') {
             sh '''
-              mvn sonar:sonar \
+              mvn clean verify \
+                org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
                 -Dsonar.projectKey=my-gestion-app \
                 -Dsonar.projectName=my-gestion-app \
                 -Dsonar.java.binaries=target
