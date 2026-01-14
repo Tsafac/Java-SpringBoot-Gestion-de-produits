@@ -139,6 +139,7 @@
 
                     <!--  NVD API KEY (obligatoire) -->
                     <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
+                    <nvdApiDelay>6000</nvdApiDelay>
 
                     <!-- Ne bloque pas le build sur CVSS -->
                     <failBuildOnCVSS>11</failBuildOnCVSS>
