@@ -145,20 +145,6 @@ pipeline {
   }
 }
 
-
-    stage('Sign Image (Cosign)') {
-      environment {
-        COSIGN_PASSWORD = credentials('cosign_password')
-      }
-      steps {
-        withCredentials([
-          file(credentialsId: 'cosign-private-key', variable: 'COSIGN_KEY')
-        ]) {
-          sh 'cosign sign --key $COSIGN_KEY $IMAGE'
-        }
-      }
-    }
-
     stage('Push Image to Harbor') {
       steps {
         sh 'docker push $IMAGE'
