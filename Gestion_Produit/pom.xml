@@ -122,36 +122,6 @@
                 </configuration>
             </plugin>
 
-            <!-- OWASP Dependency-Check (CI SAFE CONFIG) -->
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <version>9.0.7</version>
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-
-                    <!-- NVD désactivé (403 en CI) -->
-                    <nvdEnabled>false</nvdEnabled>
-
-                    <!-- Source alternative fiable -->
-                    <ossIndexEnabled>true</ossIndexEnabled>
-
-                    <!-- Ne bloque pas le build -->
-                    <failBuildOnCVSS>11</failBuildOnCVSS>
-
-                    <!-- Rapport -->
-                    <format>HTML</format>
-
-                </configuration>
-            </plugin>
-
         </plugins>
     </build>
 
