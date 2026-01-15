@@ -12,7 +12,7 @@ pipeline {
     APP_DIR   = "Gestion_Produit"
     IMAGE_TAG = "v1.${BUILD_NUMBER}"
     IMAGE     = "harbor.local:8081/staging/gestion:${IMAGE_TAG}"
-    GITOPS_REPO = "https://github.com/Tsafac/Java-SpringBoot-Gestion-de-produits.git"
+    GITOPS_REPO = "git@github.com:Tsafac/Java-SpringBoot-Gestion-de-produits.git"
   }
 
   stages {
