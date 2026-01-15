@@ -1,6 +1,5 @@
 package com.asking.api_produit.controller;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -17,26 +16,16 @@ import com.asking.api_produit.service.CustomUserDetailsService;
 @EnableWebSecurity
 public class SecConfiguration extends WebSecurityConfigurerAdapter {
 
-    /**
-     * Mot de passe admin injecté depuis une variable d’environnement Kubernetes
-     * (Secret)
-     */
-    @Value("${ADMIN_PASSWORD}")
-    private String adminPassword;
-
-    // Service de gestion des utilisateurs (BDD)
     @Bean
     public UserDetailsService userDetailsService() {
         return new CustomUserDetailsService();
     }
 
-    // Encodeur de mot de passe
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Provider d’authentification
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -47,36 +36,27 @@ public class SecConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-
-        // Authentification via la base de données
         auth.authenticationProvider(authenticationProvider());
 
-        // Compte admin en mémoire (mot de passe injecté via Secret)
         auth.inMemoryAuthentication()
             .passwordEncoder(passwordEncoder())
             .withUser("Charbel")
-            .password(passwordEncoder().encode(adminPassword))
+            .password(passwordEncoder().encode(System.getenv("ADMIN_PASSWORD")))
             .roles("admin");
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-
         http
+            .csrf().disable()
             .authorizeRequests()
-                .antMatchers(
-                    "/listeAvecCon",
-                    "/creation/",
-                    "/saveProduct",
-                    "/maj/*",
-                    "/delete/*"
-                ).authenticated()
+                .antMatchers("/listeAvecCon", "/creation/", "/saveProduct", "/maj/*", "/delete/*").authenticated()
                 .antMatchers("/users", "/deleteUser/*").hasRole("admin")
                 .anyRequest().permitAll()
             .and()
             .formLogin()
                 .usernameParameter("email")
-                .defaultSuccessUrl("/listeAvecCon")
+                .defaultSuccessUrl("/listeAvecCon", true)
                 .permitAll()
             .and()
             .logout()
