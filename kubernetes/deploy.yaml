@@ -16,21 +16,64 @@ spec:
       containers:
         - name: gestion
           image: harbor.local:8081/staging/gestion:v1.60
+          imagePullPolicy: IfNotPresent
+
           ports:
             - containerPort: 80
+
+          # ===============================
+          # ENV (SECRETS)
+          # ===============================
           env:
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
                   name: mysql-secret
                   key: MYSQL_USER
+
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: mysql-secret
                   key: MYSQL_PASSWORD
+
             - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: app-secret
                   key: ADMIN_PASSWORD
+
+          # ===============================
+          # READINESS PROBE
+          # ===============================
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # ===============================
+          # LIVENESS PROBE
+          # ===============================
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 80
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # ===============================
+          # RESOURCES (BONNE PRATIQUE)
+          # ===============================
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
