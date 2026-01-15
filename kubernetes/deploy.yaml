@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gestion-deployment
+  namespace: gestion
 spec:
   replicas: 3
   selector:
@@ -12,8 +13,10 @@ spec:
       labels:
         app: gestion
     spec:
+      imagePullSecrets:
+        - name: harbor-regcred   
       containers:
         - name: gestion
-          image: gestion:latest
+          image: harbor.local:8081/staging/gestion:v1.57
           ports:
             - containerPort: 80
