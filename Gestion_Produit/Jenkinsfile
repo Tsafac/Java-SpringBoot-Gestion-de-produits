@@ -166,20 +166,33 @@ pipeline {
 }
 
 stage('Update GitOps repo') {
-      steps {
-        sh """
-          rm -rf gitops
-          git clone $GITOPS_REPO gitops
-          cd gitops
+  steps {
+    sh """
+      set -e
 
-          sed -i 's|image: .*|image: $IMAGE|' kubernetes/deploy.yaml
+      rm -rf gitops
+      git clone $GITOPS_REPO gitops
+      cd gitops
 
-          git add .
-          git commit -m "Update gestion image to $IMAGE_TAG"
-          git push origin main
-        """
-      }
-    }
+      git config user.name "Jenkins"
+      git config user.email "jenkins@ci.local"
+
+      echo "Updating image to $IMAGE"
+
+      sed -i "s|image: .*|image: $IMAGE|" kubernetes/deploy.yaml
+
+      git add kubernetes/deploy.yaml
+
+      if git diff --cached --quiet; then
+        echo "No change detected, skipping commit"
+      else
+        git commit -m "chore(gitops): update gestion image to $IMAGE_TAG"
+        git push origin main
+      fi
+    """
+  }
+}
+
 
   }
 }
