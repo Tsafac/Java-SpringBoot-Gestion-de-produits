@@ -15,19 +15,12 @@ spec:
     spec:
       containers:
         - name: gestion
-          image: harbor.local:8081/staging/gestion:v1.57
+          image: harbor.local:8081/staging/gestion:v1.60
           ports:
             - containerPort: 80
           env:
-            - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://mysql:3306/gestion_db?serverTimezone=UTC
-            - name: SPRING_DATASOURCE_USERNAME
+            - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: mysql-secret
-                  key: MYSQL_USER
-            - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: mysql-secret
-                  key: MYSQL_PASSWORD
+                  name: app-secret
+                  key: ADMIN_PASSWORD

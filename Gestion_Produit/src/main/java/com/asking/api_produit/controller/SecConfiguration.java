@@ -1,5 +1,6 @@
 package com.asking.api_produit.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -9,33 +10,33 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import com.asking.api_produit.service.CustomUserDetailsService;
-import io.github.cdimascio.dotenv.Dotenv;
 
 @Configuration
 @EnableWebSecurity
 public class SecConfiguration extends WebSecurityConfigurerAdapter {
 
+    /**
+     * Mot de passe admin injecté depuis une variable d’environnement Kubernetes
+     * (Secret)
+     */
+    @Value("${ADMIN_PASSWORD}")
+    private String adminPassword;
 
-    @Bean
-    public Dotenv dotenv() {
-        return Dotenv.configure().filename(".env").load();
-    }
-    
-
-    // Définition du service de détails de l'utilisateur
+    // Service de gestion des utilisateurs (BDD)
     @Bean
     public UserDetailsService userDetailsService() {
         return new CustomUserDetailsService();
     }
 
-    // Définition de l'encodeur de mot de passe
+    // Encodeur de mot de passe
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Définition du fournisseur d'authentification
+    // Provider d’authentification
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -46,25 +47,40 @@ public class SecConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        // Configuration de l'authentification
+
+        // Authentification via la base de données
         auth.authenticationProvider(authenticationProvider());
-        auth.inMemoryAuthentication().passwordEncoder(passwordEncoder()).withUser("Charbel")
-                .password(passwordEncoder().encode(dotenv().get("ADMIN_PASSWORD"))).roles("admin");
+
+        // Compte admin en mémoire (mot de passe injecté via Secret)
+        auth.inMemoryAuthentication()
+            .passwordEncoder(passwordEncoder())
+            .withUser("Charbel")
+            .password(passwordEncoder().encode(adminPassword))
+            .roles("admin");
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        // Configuration des autorisations d'accès
-        http.authorizeRequests()
-                .antMatchers("/listeAvecCon", "/creation/", "/saveProduct", "/maj/*", "/delete/*").authenticated()
+
+        http
+            .authorizeRequests()
+                .antMatchers(
+                    "/listeAvecCon",
+                    "/creation/",
+                    "/saveProduct",
+                    "/maj/*",
+                    "/delete/*"
+                ).authenticated()
                 .antMatchers("/users", "/deleteUser/*").hasRole("admin")
                 .anyRequest().permitAll()
-                .and()
-                .formLogin()
+            .and()
+            .formLogin()
                 .usernameParameter("email")
                 .defaultSuccessUrl("/listeAvecCon")
                 .permitAll()
-                .and()
-                .logout().logoutSuccessUrl("/").permitAll();
+            .and()
+            .logout()
+                .logoutSuccessUrl("/")
+                .permitAll();
     }
 }
