@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: gestion
-          image: harbor.local:8081/staging/gestion:v1.73
+          image: harbor.local:8081/staging/gestion:v1.74
           imagePullPolicy: IfNotPresent
 
           ports:
