@@ -13,10 +13,21 @@ spec:
       labels:
         app: gestion
     spec:
-      imagePullSecrets:
-        - name: harbor-regcred   
       containers:
         - name: gestion
           image: harbor.local:8081/staging/gestion:v1.57
           ports:
             - containerPort: 80
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/gestion_db?serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_PASSWORD
